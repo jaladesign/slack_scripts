@@ -2,6 +2,9 @@ require('dotenv').config();
 const { WebClient } = require('@slack/web-api');
 const axios = require('axios');
 const FormData = require('form-data');
+const express = require('express');
+const router = express.Router();
+
 
 const slackApiToken = process.env.SLACK_TOKEN;
 const slackChannelId = process.env.SLACK_TESTING_CHANNEL;
@@ -50,42 +53,107 @@ const removeAssignedTickets = (unassignedTickets) => {
   return filteredArray;
 }
 
-const sendUnassignedDeskTickets = async () => {
-  try {
-    console.log("MAIN");
-    const unassignedTickets = await getUnassignedDeskTickets();
-    // console.log(unassignedTickets);
-    const filteredTickets = removeAssignedTickets(unassignedTickets);
-    console.log('Filtered Tickets');
-    console.log(filteredTickets);
-    message = generateUnassignedTicketsMessage(filteredTickets);
-    return message;
-  } catch (err) {
-    console.log(err);
-  }
-}
+// const sendUnassignedDeskTickets = async () => {
+//   try {
+//     console.log("MAIN");
+//     const unassignedTickets = await getUnassignedDeskTickets();
+//     // console.log(unassignedTickets);
+//     const filteredTickets = removeAssignedTickets(unassignedTickets);
+//     // console.log('Filtered Tickets');
+//     // console.log(filteredTickets);
+//     let message = generateUnassignedTicketsMessage(filteredTickets);
+//     console.log("message");
+//     console.log(message);
+//     return message;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
 
 const generateUnassignedTicketsMessage = (unassignedTickets) => {
-  let unassignedTicketsText = "";
+  let unassignedTicketsText = "*Unassigned Tickets:* \n";
   unassignedTickets.map(ticket => {
     let name = ticket['subject'];
     let link = "https://jaladesign.teamwork.com/desk/tickets/" + ticket['id'] + "/messages";
     unassignedTicketsText += "*UNASSIGNED:* " + name + " | *Link*:_ " + link + " _\n\n";
-  })
+  });
   return unassignedTicketsText;
 }
-//  sendUnassignedDeskTickets();
-(async () => {
-  const message = await sendUnassignedDeskTickets();
-  console.log(message);
-  try {
+
+// router.get('/unassigneddesk', async (req, res) => {
+//   try {
+//     // console.log("MAIN");
+//     // const unassignedTickets = await getUnassignedDeskTickets();
+//     // const filteredTickets = removeAssignedTickets(unassignedTickets);
+//     // const message = generateUnassignedTicketsMessage(filteredTickets);
+//     // console.log("message");
+//     // console.log(message);
+    
+//     // // Send the message to Slack
+//     // await client.chat.postMessage({
+//     //   channel: slackChannelId,
+//     //   text: message,
+//     //   parse: 'full'
+//     // });
+    
+//     // console.log('Message sent!');
+//     res.send('Unassigned Desk message sent!');
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Error occurred while sending the Unassigned Desk message.');
+//   }
+// });
+
+// app.get('/unassigneddesk', (req, res) => {
+//   // Parse the slash command payload
+//   const command = req.body.command;
+//   const text = req.body.text;
+//   // (async () => {
+//   //   const message = await sendUnassignedDeskTickets();
+//   //   console.log(message);
+//   //   try {
+//   //     await client.chat.postMessage({
+//   //       channel: slackChannelId,
+//   //       text: message,
+//   //       parse: 'full'
+//   //     });
+//   //     console.log('Message sent!');
+//   //   } catch (error) {
+//   //     console.error(error);
+//   //     console.error("BIG ERROR");
+//   //   }
+//   // })();
+//   // Format the response message
+//   const response = "UNASSINGED TICKETS";
+//   console.log("UDesk");
+//   // Send the response back to Slack
+//   // res.json({ text: response });
+//   res.send('Hello, this is the Unassigned Desk!');
+// });
+
+
+router.get('/', async (req, res) => {
+   try {
+    console.log("MAIN");
+    const unassignedTickets = await getUnassignedDeskTickets();
+    const filteredTickets = removeAssignedTickets(unassignedTickets);
+    const message = generateUnassignedTicketsMessage(filteredTickets);
+    console.log("message");
+    console.log(message);
+    
+    // Send the message to Slack
     await client.chat.postMessage({
       channel: slackChannelId,
       text: message,
       parse: 'full'
     });
+    
     console.log('Message sent!');
+    res.send('Unassigned Desk message sent!');
   } catch (error) {
     console.error(error);
+    res.status(500).send('Error occurred while sending the Unassigned Desk message.');
   }
-})();
+});
+
+module.exports = router;

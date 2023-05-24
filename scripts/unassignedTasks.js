@@ -4,8 +4,8 @@ const axios = require('axios');
 const FormData = require('form-data');
 
 const slackApiToken = process.env.SLACK_TOKEN;
-const slackChannelId = process.env.SLACK_TESTING_CHANNEL;
-// const slackChannelId = process.env.SLACK_ALERTS_GENERAL_CHANNEL;
+// const slackChannelId = process.env.SLACK_TESTING_CHANNEL;
+const slackChannelId = process.env.SLACK_ALERTS_GENERAL_CHANNEL;
 
 console.log(`slackApiToken: ${slackApiToken}`);
 console.log(`slackChannelId: ${slackChannelId}`);
